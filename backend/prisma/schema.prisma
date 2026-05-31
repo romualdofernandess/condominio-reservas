@@ -1,0 +1,58 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  password     String
+  apartment    String
+  block        String?
+  role         Role          @default(RESIDENT)
+  createdAt    DateTime      @default(now())
+  reservations Reservation[]
+}
+
+model Space {
+  id           Int           @id @default(autoincrement())
+  name         String
+  description  String?
+  capacity     Int
+  imageUrl     String?
+  rules        String?
+  active       Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  reservations Reservation[]
+}
+
+model Reservation {
+  id        Int               @id @default(autoincrement())
+  userId    Int
+  spaceId   Int
+  date      DateTime
+  startTime String
+  endTime   String
+  guests    Int               @default(1)
+  status    ReservationStatus @default(PENDING)
+  notes     String?
+  createdAt DateTime          @default(now())
+  user      User              @relation(fields: [userId], references: [id])
+  space     Space             @relation(fields: [spaceId], references: [id])
+}
+
+enum Role {
+  RESIDENT
+  ADMIN
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
